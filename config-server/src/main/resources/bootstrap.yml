@@ -1,0 +1,7 @@
+server.port: 8001
+spring.application.name: config-server
+spring.cloud.config.server.git.uri: https://github.com/aandreev-scalefocus/microservices-configs.git
+logging.level.root: WARN 
+management.endpoints.web.exposure.include: health,info,env,bus-refresh
+eureka.client.register-with-eureka: false
+eureka.client.fetch-registry: false
