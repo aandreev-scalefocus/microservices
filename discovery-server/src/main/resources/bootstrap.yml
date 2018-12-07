@@ -1,3 +1,18 @@
 server.port: 7001
 spring.application.name: discovery-server
-spring.cloud.config.uri: http://localhost:8001/
+management.endpoints.web.exposure.include: health,info,env,bus-refresh,hystrix.stream
+logging.level.root: WARN
+
+#spring.cloud.config.uri: http://${config.uri:localhost}:8001/
+
+eureka:
+  instance:
+    hostname: ${discovery.uri:localhost}
+    lease-renewal-interval-in-seconds: 2
+    lease-expiration-duration-in-seconds: 2
+  server:
+    eviction-interval-timer-in-ms: 1000
+    response-cache-update-interval-ms: 1000
+  client:
+    register-with-eureka: false
+    fetch-registry: false
