@@ -1,0 +1,76 @@
+version: '3'
+services:
+    discovery-server:
+        container_name: discovery-server
+#        build:
+#            context: .
+#            dockerfile: discovery-server/Dockerfile
+        image: avandreev/discovery-server:latest
+        ports:
+            - 7001:7001
+        networks:
+            - microservices-network        
+                        
+    config-server:
+        container_name: config-server
+        image: avandreev/config-server:latest
+        ports:
+            - 8001:8001
+        networks:
+            - microservices-network
+        environment:
+            - discovery.uri=discovery-server
+        depends_on:
+            - discovery-server
+        #command: ["./wait-for-it.sh", "discovery-server:7001", "java", "-jar", "/app.jar"]
+#        volumes:
+#           - spring-cloud-config-repo:/var/lib/spring-cloud/config-repo
+#        logging:
+#            driver: json-file
+
+    # rest-server:
+        # container_name: rest-server
+        # image: avandreev/rest-server:latest
+        # ports:
+            # - 9601:9601
+        # networks:
+            # - microservices-network
+        # environment:
+            # - discovery.uri=discovery-server
+        # depends_on:
+            # - discovery-server
+            # - config-server
+            
+    # web-client:
+        # container_name: web-client
+        # image: avandreev/web-client:latest
+        # ports:
+            # - 9401:9401
+        # networks:
+            # - microservices-network
+        # environment:
+            # - discovery.uri=discovery-server
+        # depends_on:
+            # - discovery-server
+            # - config-server
+            
+    # hystrix-dashboard:
+        # container_name: hystrix-dashboard
+        # image: avandreev/hystrix-dashboard:latest
+        # ports:
+            # - 9301:9301
+        # networks:
+            # - microservices-network
+        # environment:
+            # - discovery.uri=discovery-server
+        # depends_on:
+            # - discovery-server
+            # - config-server
+
+    
+networks:
+    microservices-network:
+        driver: overlay
+#volumes:
+#    spring-cloud-config-repo:
+#       external: true
