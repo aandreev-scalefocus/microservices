@@ -1,15 +1,17 @@
-version: '3'
+version: '2.1'
 services:
     discovery-server:
         container_name: discovery-server
-#        build:
-#            context: .
-#            dockerfile: discovery-server/Dockerfile
         image: avandreev/discovery-server:latest
         ports:
             - 7001:7001
         networks:
-            - microservices-network        
+            - microservices-network
+        healthcheck:
+            test: apk add curl && (curl --silent --fail discovery-server:7001 || exit 1)
+            interval: 2s
+            timeout: 5s
+            retries: 30
                         
     config-server:
         container_name: config-server
@@ -21,56 +23,59 @@ services:
         environment:
             - discovery.uri=discovery-server
         depends_on:
-            - discovery-server
-        #command: ["./wait-for-it.sh", "discovery-server:7001", "java", "-jar", "/app.jar"]
-#        volumes:
-#           - spring-cloud-config-repo:/var/lib/spring-cloud/config-repo
-#        logging:
-#            driver: json-file
+            discovery-server:
+                condition: service_healthy
+        healthcheck:
+            test: apk add curl && (curl --silent --fail config-server:8001/actuator || exit 1)
+            interval: 2s
+            timeout: 5s
+            retries: 30
 
-    # rest-server:
-        # container_name: rest-server
-        # image: avandreev/rest-server:latest
-        # ports:
-            # - 9601:9601
-        # networks:
-            # - microservices-network
-        # environment:
-            # - discovery.uri=discovery-server
-        # depends_on:
-            # - discovery-server
-            # - config-server
+    rest-server:
+        container_name: rest-server
+        image: avandreev/rest-server:latest
+        ports:
+            - 9601:9601
+        networks:
+            - microservices-network
+        environment:
+            - discovery.uri=discovery-server
+        # volumes:
+            # - ../databases/:/db/
+        depends_on:
+            config-server:
+                condition: service_healthy                
             
-    # web-client:
-        # container_name: web-client
-        # image: avandreev/web-client:latest
-        # ports:
-            # - 9401:9401
-        # networks:
-            # - microservices-network
-        # environment:
-            # - discovery.uri=discovery-server
-        # depends_on:
-            # - discovery-server
-            # - config-server
+    web-client:
+        container_name: web-client
+        image: avandreev/web-client:latest
+        ports:
+            - 9401:9401
+        networks:
+            - microservices-network
+        environment:
+            - discovery.uri=discovery-server
+        depends_on:
+            config-server:
+                condition: service_healthy
             
-    # hystrix-dashboard:
-        # container_name: hystrix-dashboard
-        # image: avandreev/hystrix-dashboard:latest
-        # ports:
-            # - 9301:9301
-        # networks:
-            # - microservices-network
-        # environment:
-            # - discovery.uri=discovery-server
-        # depends_on:
-            # - discovery-server
-            # - config-server
+    hystrix-dashboard:
+        container_name: hystrix-dashboard
+        image: avandreev/hystrix-dashboard:latest
+        ports:
+            - 9301:9301
+        networks:
+            - microservices-network
+        environment:
+            - discovery.uri=discovery-server
+        depends_on:
+            config-server:
+                condition: service_healthy
 
     
 networks:
     microservices-network:
-        driver: overlay
-#volumes:
-#    spring-cloud-config-repo:
-#       external: true
+        driver: bridge  #overlay
+# volumes:
+    # ../databases/:
+        # external: true
