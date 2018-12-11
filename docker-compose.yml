@@ -41,9 +41,9 @@ services:
         environment:
             - discovery.uri=discovery-server
         volumes:            
-            - type: bind
-              source: //C/dev/workspace/databases/h2-db.mv.db
-              target: /C:/dev/workspace/databases/h2-db.mv.db
+            - type: volume
+              source: h2-db
+              target: /C:/dev/workspace/databases/
               volume:
                 nocopy: false
         depends_on:
@@ -84,6 +84,6 @@ services:
 networks:
     network:
         driver: bridge  #overlay
-# volumes:
-    # h2-db:
+volumes:
+    h2-db:
         # external: true
