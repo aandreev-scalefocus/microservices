@@ -1,4 +1,4 @@
-version: '2.1'
+version: '2.3'
 services:
     discovery-server:
         container_name: discovery-server
@@ -6,7 +6,7 @@ services:
         ports:
             - 7001:7001
         networks:
-            - microservices-network
+            - network
         healthcheck:
             test: apk add curl && (curl --silent --fail discovery-server:7001 || exit 1)
             interval: 2s
@@ -19,7 +19,7 @@ services:
         ports:
             - 8001:8001
         networks:
-            - microservices-network
+            - network
         environment:
             - discovery.uri=discovery-server
         depends_on:
@@ -37,14 +37,23 @@ services:
         ports:
             - 9601:9601
         networks:
-            - microservices-network
+            - network
         environment:
             - discovery.uri=discovery-server
-        # volumes:
-            # - ../databases/:/db/
+        volumes:            
+            - type: bind
+              source: //C/dev/workspace/databases/h2-db.mv.db
+              target: /C:/dev/workspace/databases/h2-db.mv.db
+              volume:
+                nocopy: false
         depends_on:
             config-server:
-                condition: service_healthy                
+                condition: service_healthy
+        healthcheck:
+            test: apk add curl && (curl --silent --fail rest-server:9601 || exit 1)
+            interval: 2s
+            timeout: 5s
+            retries: 30
             
     web-client:
         container_name: web-client
@@ -52,11 +61,11 @@ services:
         ports:
             - 9401:9401
         networks:
-            - microservices-network
+            - network
         environment:
             - discovery.uri=discovery-server
         depends_on:
-            config-server:
+            rest-server:
                 condition: service_healthy
             
     hystrix-dashboard:
@@ -65,17 +74,16 @@ services:
         ports:
             - 9301:9301
         networks:
-            - microservices-network
+            - network
         environment:
             - discovery.uri=discovery-server
         depends_on:
             config-server:
                 condition: service_healthy
-
     
 networks:
-    microservices-network:
+    network:
         driver: bridge  #overlay
 # volumes:
-    # ../databases/:
+    # h2-db:
         # external: true
