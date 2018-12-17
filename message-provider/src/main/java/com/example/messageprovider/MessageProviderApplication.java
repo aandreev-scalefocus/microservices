@@ -8,6 +8,8 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Random;
+
 @SpringBootApplication
 @EnableDiscoveryClient
 @Controller
@@ -22,9 +24,10 @@ public class MessageProviderApplication {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/send/{message}")
-    public @ResponseBody void sendMessage(@PathVariable("message") String message) {
-        System.out.println("Sending message: " + message);
-		messageProducer.produce(message);
+    public @ResponseBody void sendMessage(@PathVariable("message") String text) {
+        MessageDTO messageDTO = new MessageDTO(text, new Random().nextInt(100));
+        System.out.println("Sending message: " + messageDTO);
+		messageProducer.produce(messageDTO);
     }
 }
 
