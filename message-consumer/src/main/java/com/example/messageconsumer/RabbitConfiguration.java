@@ -47,7 +47,6 @@ public class RabbitConfiguration {
     }
 
     @Bean
-
     MessageListenerAdapter listenerAdapter(MessageConsumer consumer) {
         return new MessageListenerAdapter(consumer, LISTENER_METHOD);
     }
