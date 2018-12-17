@@ -2,6 +2,10 @@
 *.class
 .settings
 .project
+.idea
+*/.mvn/
+*/mvnw*
+*/target/
 
 # Log file
 *.log
