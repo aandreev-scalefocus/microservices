@@ -2,20 +2,15 @@ package com.example.messageconsumer;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MessageConsumer {
 
+    @RabbitListener(queues = "${queue.name}")
     public void receiveMessage(String message) {
-        System.out.println("Received (String) " + message);
         processMessage(message);
-    }
-
-    public void receiveMessage(byte[] message) {
-        String strMessage = new String(message);
-        System.out.println("Received (Bytes) " + strMessage);
-        processMessage(strMessage);
     }
 
     @SneakyThrows
