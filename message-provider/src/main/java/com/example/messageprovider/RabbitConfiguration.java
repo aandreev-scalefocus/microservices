@@ -1,9 +1,6 @@
 package com.example.messageprovider;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.FanoutExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,15 +8,21 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitConfiguration {
 
-    @Value("${fanout.exchange}")
-    private String fanoutExchange;
-
     @Value("${queue.name}")
     private String queueName;
 
+    @Value("${fanout.exchange}")
+    private String fanoutExchange;
+
+    @Value("${dead.letter.queue.name}")
+    private String deadLetterQueue;
+
     @Bean
     Queue queue() {
-        return new Queue(queueName, true);
+        return QueueBuilder.durable(queueName)
+                .withArgument("x-dead-letter-exchange", "")
+                .withArgument("x-dead-letter-routing-key", deadLetterQueue)
+                .build();
     }
 
     @Bean
@@ -28,8 +31,11 @@ public class RabbitConfiguration {
     }
 
     @Bean
-    Binding binding(Queue queue, FanoutExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange);
+    Queue deadLetterQueue() { return new Queue(deadLetterQueue); }
+
+    @Bean
+    Binding binding() {
+        return BindingBuilder.bind(queue()).to(exchange());
     }
 
 }

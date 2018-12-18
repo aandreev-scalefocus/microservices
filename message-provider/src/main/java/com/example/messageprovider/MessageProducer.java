@@ -25,10 +25,8 @@ public class MessageProducer {
 
     @SneakyThrows
     public void produce(MessageDTO message){
-        log.info("Storing notification...");
         rabbitTemplate.setExchange(fanoutExchange);
         rabbitTemplate.convertAndSend(new ObjectMapper().writeValueAsString(message));
-        log.info("Notification stored in queue sucessfully");
     }
 
 }
