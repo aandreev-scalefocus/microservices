@@ -31,3 +31,6 @@ hs_err_pid*
 gradle/wrapper/gradle-wrapper.properties
 gradlew
 gradlew.bat
+config-server/Dockerfile
+discovery-server/Dockerfile
+microservices-configs/
