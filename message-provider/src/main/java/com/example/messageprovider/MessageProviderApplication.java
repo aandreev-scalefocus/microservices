@@ -1,5 +1,6 @@
 package com.example.messageprovider;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,6 +18,7 @@ import java.util.Random;
 
 @SpringBootApplication
 @EnableDiscoveryClient
+@Slf4j
 @Controller
 @EnableBinding(Source.class)
 public class MessageProviderApplication {
@@ -32,7 +34,7 @@ public class MessageProviderApplication {
 //    @SendTo(Source.OUTPUT)
     public @ResponseBody MessageDTO sendMessage(@PathVariable("message") String text) {
         MessageDTO messageDTO = new MessageDTO(text, new Random().nextInt(100));
-        System.out.println("Sending message: " + messageDTO);
+        log.warn("Sending message: " + messageDTO);
 
         source.output().send(MessageBuilder.withPayload(messageDTO).build());
 
