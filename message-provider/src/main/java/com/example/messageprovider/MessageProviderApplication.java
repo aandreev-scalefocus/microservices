@@ -31,13 +31,10 @@ public class MessageProviderApplication {
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/send/{message}")
-//    @SendTo(Source.OUTPUT)
     public @ResponseBody MessageDTO sendMessage(@PathVariable("message") String text) {
         MessageDTO messageDTO = new MessageDTO(text, new Random().nextInt(100));
         log.warn("Sending message: " + messageDTO);
-
         source.output().send(MessageBuilder.withPayload(messageDTO).build());
-
         return messageDTO;
     }
 }
